@@ -3,14 +3,34 @@ import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient()
 
-export async function getAuthUser(req, res, next) {}
+export async function getAuthUser(req, res, next) {
+    const token = req.headers.authorization;
+    
+    if(!token) {
+        req.user = null
+        return next();
+    }else{
+        const decode = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await prisma.user.findUnique({
+            where: {
+                id: decode.id
+            },
+            include:{
+                videos: true
+            }
+        })
+        
+        req.user = user
+        next();
+    }
+}
 
 export async function protect(req, res, next) {
     const token = req.headers.authorization;
     
     if(!token) {
         next({
-            message: 'You need to be logged in to access this route!',
+            message: 'You need tokens!',
             statusCode: 401
         })
     }
@@ -25,7 +45,7 @@ export async function protect(req, res, next) {
                 videos: true
             }
         })
-
+        
         req.user = user
         next();
     } catch (error) {
