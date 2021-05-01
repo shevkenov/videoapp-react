@@ -9,21 +9,25 @@ function getVideoRoutes() {
   const router = express.Router();
 
   router.get("/", getRecommendedVideos);
+  router.post("/", protect, addVideo);
+
   router.get("/trending", getTrendingVideos);
   router.get("/search", searchVideos);
-  router.post("/", protect, addVideo);
+  
   router.get("/:videoId", getAuthUser, getVideo);
+  router.delete("/:videoId", protect, deleteVideo);
+  
   router.get("/:videoId/views", getAuthUser, addVideoView);
   router.get("/:videoId/like", protect, likeVideo);
   router.get("/:videoId/dislike", protect, dislikeVideo);
+  
   router.post("/:videoId/comments", protect, addComment);
   router.delete("/:videoId/comments/:commentId", protect, deleteComment);
-  router.delete("/:videoId", protect, deleteVideo);
 
   return router;
 }
 
-async function getVideoViews(videos) {
+export async function getVideoViews(videos) {
   for (const video of videos) {
     const views = await prisma.view.count({
       where: {
