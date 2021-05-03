@@ -10,12 +10,15 @@ function getUserRoutes() {
   const router = express.Router();
 
   router.get("/", protect, getRecommendedChannels);
+  router.put("/", protect, editUser);
+
   router.get("/liked-videos", protect, getLikedVideos);
   router.get("/history", protect, getHistory);
-  router.get("/:userId/toggle-subscribe", protect, toggleSubscribe);
-  router.get("/:userId", getAuthUser, getProfile);
   router.get("/subscriptions", protect, getFeed);
   router.get("/search", getAuthUser, searchUser);
+  
+  router.get("/:userId/toggle-subscribe", protect, toggleSubscribe);
+  router.get("/:userId", getAuthUser, getProfile);
 
   return router;
 }
@@ -234,7 +237,6 @@ async function getRecommendedChannels(req, res) {
       },
     });
 
-    
     const subscribedTo = await prisma.subscription.findFirst({
       where: {
         AND: {
@@ -242,28 +244,129 @@ async function getRecommendedChannels(req, res) {
             equals: req.user.id,
           },
           subscribedToId: {
-            equals: channel.id
-          }
+            equals: channel.id,
+          },
         },
       },
     });
 
     channel.isSubscribed = Boolean(subscribedTo);
     channel.videosCount = videosCount;
-    channel.subscribersCount = subscribersCount
+    channel.subscribersCount = subscribersCount;
   }
 
-  res.status(200).json({channels})
+  res.status(200).json({ channels });
 }
 
 async function getProfile(req, res, next) {
   const user = await prisma.user.findUnique({
     where: {
-      id: req.params.userId
-    }
-  })
+      id: req.params.userId,
+    },
+  });
+
+  if (!user)
+    return next({
+      message: `The user with id: ${req.params.userId} does not exist!`,
+      statusCode: 400,
+    });
+
+  const subscribersCount = prisma.subscription.count({
+    where: {
+      subscribedToId: {
+        equals: user.id,
+      },
+    },
+  });
+
+  let isMe = false;
+  let isSubscribed = false;
+  if (req.user) {
+    isMe = req.user.id === user.id;
+
+    isSubscribed = await prisma.subscription.findFirst({
+      where: {
+        AND: {
+          subscriberId: {
+            equals: req.user.id,
+          },
+          subscribedToId: {
+            equals: user.id,
+          },
+        },
+      },
+    });
+  }
+
+  const subscribedTo = await prisma.subscription.findMany({
+    where: {
+      subscriberId: {
+        equals: user.id,
+      }
+    },
+  });
+
+  const subscriptions = subscribedTo.map((sub) => sub.id);
+
+  const channels = await prisma.user.findMany({
+    where: {
+      id: {
+        in: subscriptions,
+      },
+    },
+  });
+
+  for (const channel of channels) {
+    const subsCount = await prisma.subscription.count({
+      where: {
+        subscribedToId: {
+          equals: channel.id,
+        },
+      },
+    });
+
+    channel.subscribersCount = subsCount;
+  }
+
+  const videos = await prisma.video.findMany({
+    where: {
+      userId: {
+        equals: user.id,
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  user.subscribersCount = subscribersCount;
+  user.isMe = isMe;
+  user.isSubscribed = Boolean(isSubscribed);
+  user.channels = channels;
+  user.videos = videos;
+
+  if(!videos.length){
+    return res.status(200).json({user});
+  }
+
+  user.videos = await getVideoViews(videos);
+
+  res.status(200).json({user})
 }
 
-async function editUser(req, res) {}
+async function editUser(req, res) {
+  const {username, avatar, cover, about} = req.body;
+
+  const user = await prisma.user.update({
+    where: {
+      id: req.user.id
+    },
+    data: {
+      username, avatar, cover, about
+    }
+  });
+
+  res.status(200).json({ user });
+}
 
 export { getUserRoutes };
