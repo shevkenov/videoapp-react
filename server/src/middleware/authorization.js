@@ -4,7 +4,8 @@ import jwt from 'jsonwebtoken';
 const prisma = new PrismaClient()
 
 export async function getAuthUser(req, res, next) {
-    const token = req.headers.authorization;
+    //const token = req.headers.authorization;
+    const token = req.cookies.token;
     
     if(!token) {
         req.user = null
@@ -26,7 +27,8 @@ export async function getAuthUser(req, res, next) {
 }
 
 export async function protect(req, res, next) {
-    const token = req.headers.authorization;
+    //const token = req.headers.authorization;
+    const token = req.cookies.token;
     
     if(!token) {
         next({
