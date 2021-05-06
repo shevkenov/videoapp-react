@@ -1,11 +1,16 @@
+import { useAuth } from "context/auth-context";
 import React from "react";
 import { NavLink } from "react-router-dom";
 import Wrapper from "../styles/Navbar";
 import GoogleAuth from "./GoogleAuth";
 import { AppsIcon, HamburgerIcon, LogoIcon, SettingsIcon } from "./Icons";
 import Search from "./Search";
+import UploadVideo from "./UploadVideo";
+import UserDropdown from "./UserDropdown";
 
 function Navbar(props) {
+  const user = useAuth();
+
   return (
     <Wrapper>
       <div className="logo flex-row">
@@ -26,14 +31,13 @@ function Navbar(props) {
 
       <ul>
         <li>
-          <AppsIcon />
+          {user ? <UploadVideo /> :  <AppsIcon />}
         </li>
         <li>
-          <SettingsIcon />
+          {user ? <AppsIcon /> : <SettingsIcon />}
         </li>
         <li>
-          {" "}
-          <GoogleAuth />
+          {user ? <UserDropdown user={user}/> : <GoogleAuth />}
         </li>
       </ul>
     </Wrapper>
