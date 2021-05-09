@@ -7,28 +7,31 @@ import { darkTheme } from "../styles/theme";
 import { AuthProvider } from "../context/auth-context";
 import { ReactQueryConfigProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query-devtools";
+import SnackbarProvider from "react-simple-snackbar";
 
 const config = {
   queries: {
     refetchOnWindowFocus: false,
     retry(failureCount, error) {
-      if(error.status === 404) return false;
-      else if(failureCount < 2) return true;
+      if (error.status === 404) return false;
+      else if (failureCount < 2) return true;
       else return false;
-    }
+    },
   },
-}
+};
 
 function AppProviders({ children }) {
   return (
     <ReactQueryConfigProvider config={config}>
       <Router>
         <AuthProvider>
-          <ThemeProvider theme={darkTheme}>
-            <GlobalStyle />
-            <ReactQueryDevtools />
-            {children}
-          </ThemeProvider>
+          <SnackbarProvider>
+            <ThemeProvider theme={darkTheme}>
+              <GlobalStyle />
+              <ReactQueryDevtools />
+              {children}
+            </ThemeProvider>
+          </SnackbarProvider>
         </AuthProvider>
       </Router>
     </ReactQueryConfigProvider>
