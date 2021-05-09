@@ -398,6 +398,9 @@ async function getVideo(req, res, next) {
     where: {
       id: videoId,
     },
+    include: {
+      user: true
+    }
   });
 
   if (!video)
