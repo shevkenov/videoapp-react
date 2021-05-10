@@ -28,18 +28,35 @@ export async function addVideoView(id) {
     await queryCache.invalidateQueries("History");
 }
 
-export async function addComment() {}
+export async function addComment({comment, video}) {
+    await axiosClient.post(`/videos/${video.id}/comments`, {text: comment});
+    await queryCache.invalidateQueries(["WatchVideo", video.id]);
+}
 
 export async function addVideo(video) {
     await axiosClient.post("/videos", video);
     await queryCache.invalidateQueries("Channel");
 }
 
-export async function toggleSubscribeUser() {}
+export async function toggleSubscribeUser(channelId) {
+    await axiosClient(`/users/${channelId}/toggle-subscribe`);
+    await queryCache.invalidateQueries(["WatchVideo"])
+    await queryCache.invalidateQueries(["Cannel"])
+    await queryCache.invalidateQueries(["Cannels"])
+    await queryCache.invalidateQueries(["Subscriptions"])
+    await queryCache.invalidateQueries(["AuthProvider"])
+    await queryCache.invalidateQueries(["SearchResult"])
+}
 
-export async function likeVideo() {}
+export async function likeVideo(videoId) {
+    await axiosClient(`/videos/${videoId}/like`);
+    await queryCache.invalidateQueries(["WatchVideo", videoId]);
+}
 
-export async function dislikeVideo() {}
+export async function dislikeVideo(videoId) {
+    await axiosClient(`/videos/${videoId}/dislike`);
+    await queryCache.invalidateQueries(["WatchVideo", videoId]);
+}
 
 export async function deleteVideo() {}
 
