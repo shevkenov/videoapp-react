@@ -2,7 +2,7 @@
 import React from "react";
 import { useQuery } from 'react-query';
 import { useParams } from "react-router";
-import { axiosClient } from "../utils/api-client";
+import { axiosClient, likeVideo, dislikeVideo, toggleSubscribeUser } from "../utils/api-client";
 
 import AddComment from "../components/AddComment";
 import { DislikeIcon, LikeIcon } from "../components/Icons";
@@ -13,11 +13,19 @@ import Wrapper from "../styles/WatchVideo";
 import { formatCreatedAt } from '../utils/date';
 import Skeleton from '../skeletons/WatchVideoSkeleton';
 import VideoCard from "components/VideoCard";
+import useAuthAction from "hooks/use-auth-action";
 
 function WatchVideo() {
   const {videoId} = useParams();
+  const handleAuthAction = useAuthAction()
   const { data: video, isLoading: isLoadingVideo } = useQuery(["WatchVideo", videoId], () => axiosClient.get(`/videos/${videoId}`).then(res => res.data.video));
   const { data: next, isLoading: isLoadingNext } = useQuery(["WatchVideo", "Next"], () => axiosClient.get(`/videos`).then(res => res.data.videos));
+  
+  const handleLikeVideo = () => handleAuthAction(likeVideo,videoId);
+  
+  const handleDislikeVideo = () => handleAuthAction(dislikeVideo,videoId);
+
+  const handleToggleSubscribe = () => handleAuthAction(toggleSubscribeUser,video.userId);
   
   if (isLoadingVideo || isLoadingNext) return <Skeleton />
 
@@ -48,10 +56,10 @@ function WatchVideo() {
 
             <div className="likes-dislikes flex-row">
               <p className="flex-row like">
-                <LikeIcon /> <span>{video.likesCount}</span>
+                <LikeIcon onClick={handleLikeVideo}/> <span>{video.likesCount}</span>
               </p>
               <p className="flex-row dislike" style={{ marginLeft: "1rem" }}>
-                <DislikeIcon /> <span>{video.dislikesCount}</span>
+                <DislikeIcon onClick={handleDislikeVideo} /> <span>{video.dislikesCount}</span>
               </p>
             </div>
           </div>
@@ -71,10 +79,9 @@ function WatchVideo() {
                   {video.subscribersCount} subscribers
                 </span>
               </div>
-            </div>
-
-            {!video.isSubscribed && !video.isMain && <Button>Subscribe</Button>}
-            {video.isSubscribed && !video.isMain && <Button>Subscribed</Button>}
+            </div>          
+            {!video.isSubscribed && !video.isMine && <Button onClick={handleToggleSubscribe}>Subscribe</Button>}
+            {video.isSubscribed && !video.isMine && <Button grey onClick={handleToggleSubscribe}>Subscribed</Button>}
           </div>
 
           <p>{video.description}</p>
