@@ -11,7 +11,7 @@ function VideoPlayer({previewUrl, video}) {
   React.useEffect(() => {
     const vjsPlayer = videojs(videoRef.current);
 
-    if(video) {
+    if(id) {
       vjsPlayer.poster(thumbnail);
       vjsPlayer.src(url);
 
