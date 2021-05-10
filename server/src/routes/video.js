@@ -409,6 +409,17 @@ async function getVideo(req, res, next) {
       statusCode: 404,
     });
 
+  const comments = await prisma.comment.findMany({
+    where: {
+      videoId: {
+        equals: videoId
+      }  
+    },
+    include: {
+      user: true
+    }
+  })
+
   let isLiked = false;
   let isDisliked = false;
   let isMine = false;
@@ -529,6 +540,7 @@ async function getVideo(req, res, next) {
   video.isDisliked = Boolean(isDisliked);
   video.isViewed = Boolean(isViewed);
   video.isSubscribed = Boolean(isSubscribed);
+  video.comments = comments;
 
   res.status(200).json({ video });
 }
