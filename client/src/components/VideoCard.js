@@ -5,7 +5,7 @@ import Avatar from "../styles/Avatar";
 import Wrapper from "../styles/VideoCard";
 import DeleteVideoDropdown from "./DeleteVideoDropdown";
 
-function VideoCard({video}) {
+function VideoCard({video, showAvatar}) {
   return (
     <Wrapper>
       <Link to={`/watch/${video.id}`}>
@@ -16,13 +16,15 @@ function VideoCard({video}) {
         />
       </Link>
       <div className="video-info-container">
-        <div className="channel-avatar">
+        {
+          !showAvatar && (<div className="channel-avatar">
           <Avatar
             style={{ marginRight: "0.8rem" }}
             src={video.user.avatar}
             alt={video.user.username}
           />
-        </div>
+        </div>)
+        }
         <div className="video-info">
           <span>
             <h4 className="truncate">{video.title}</h4>
