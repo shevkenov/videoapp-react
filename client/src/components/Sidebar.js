@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { useAuth } from "context/auth-context";
 import React from "react";
 import { NavLink } from "react-router-dom";
 
@@ -13,8 +14,11 @@ import {
   VidIcon,
 } from "./Icons";
 import SidebarAuth from "./SidebarAuth";
+import Subscriptions from "./Subscriptions";
 
 function Sidebar(props) {
+  const user = useAuth();
+  
   return (
     <Wrapper {...props}>
       <NavLink exact to="/" activeClassName="active">
@@ -69,8 +73,8 @@ function Sidebar(props) {
       </NavLink>
 
       <div className="divider"></div>
-
-      <SidebarAuth />
+      
+      { user ? <Subscriptions user={user} /> : <SidebarAuth />}
     </Wrapper>
   );
 }
