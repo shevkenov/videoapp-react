@@ -68,7 +68,7 @@ async function me(req, res) {
 
   const channelsId = subscriptions.map(sub => sub.subscribedToId);
 
-  const channels = await prisma.subscription.findMany({
+  const channels = await prisma.user.findMany({
     where: {
       id: {
         in: channelsId
