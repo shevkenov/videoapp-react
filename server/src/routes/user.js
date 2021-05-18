@@ -271,7 +271,7 @@ async function getProfile(req, res, next) {
       statusCode: 400,
     });
 
-  const subscribersCount = prisma.subscription.count({
+  const subscribersCount = await prisma.subscription.count({
     where: {
       subscribedToId: {
         equals: user.id,
