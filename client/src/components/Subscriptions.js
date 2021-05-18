@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Wrapper from "../styles/Subscriptions";
 
+
 function Subscriptions({user}) {
   if(!user) return null;
   
