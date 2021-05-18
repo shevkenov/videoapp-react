@@ -48,12 +48,10 @@ function Channel() {
   if(isLoading) return <ChannelSkeleton />
   if(isError) return <ErrorMessage error={error}/>
 
-  console.log(channel)
-
   return (
     <Wrapper editProfile={channel.isMe}>
       <div className="cover">
-        <img src={channel.avatar} alt={channel.cover} />
+        <img src={channel.cover} alt={channel.cover} />
       </div>
 
       <div className="header-tabs">
