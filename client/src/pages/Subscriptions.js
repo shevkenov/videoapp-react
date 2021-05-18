@@ -4,11 +4,22 @@ import { SubIcon } from "../components/Icons";
 import SignUpCard from "../components/SignUpCard";
 import Wrapper from "../styles/Home";
 import VideoGrid from "../styles/VideoGrid";
+import ErrorMessage from "../components/ErrorMessage";
+import ChannelSuggestions from '../components/ChannelSuggestions';
+import { axiosClient } from "utils/api-client";
+import HomeSkeleton from "skeletons/HomeSkeleton";
+import { useQuery } from "react-query";
+import { useAuth } from "context/auth-context";
+import VideoCard from "components/VideoCard";
 
 function Subscriptions() {
-  const isAuth = false;
+  const user = useAuth();
+  
+  const {data: feed, isLoading, isError, error, isSuccess} = useQuery("Subscriptions", () => axiosClient.get('/users/subscriptions').then(res => res.data.feed), {
+    enabled: user
+  })
 
-  if (!isAuth) {
+  if (!user) {
     return (
       <SignUpCard
         icon={<SubIcon />}
@@ -18,11 +29,18 @@ function Subscriptions() {
     );
   }
 
+  if(isLoading) return <HomeSkeleton />
+  if(isError) return <ErrorMessage error={error}/>
+  if(!isLoading && !feed?.length) return <ChannelSuggestions />
+
+
   return (
     <Wrapper>
       <div style={{ marginTop: "1.5rem" }}></div>
 
-      <VideoGrid>Subscription Videos</VideoGrid>
+      <VideoGrid>
+        {isSuccess ? feed.map(video => <VideoCard video={video} key={video.id}/>) : null}
+      </VideoGrid>
     </Wrapper>
   );
 }
