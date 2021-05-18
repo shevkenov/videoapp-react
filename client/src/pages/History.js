@@ -1,13 +1,23 @@
 // @ts-nocheck
+import ErrorMessage from "components/ErrorMessage";
+import TrendingCard from "components/TrendingCard";
+import { useAuth } from "context/auth-context";
+import id from "date-fns/esm/locale/id/index.js";
 import React from "react";
+import { useQuery } from "react-query";
+import { Link } from "react-router-dom";
+import TrendingSkeleton from "skeletons/TrendingSkeleton";
+import { axiosClient } from "utils/api-client";
 import { HistoryIcon } from "../components/Icons";
 import SignUpCard from "../components/SignUpCard";
 import Wrapper from "../styles/Trending";
 
 function History() {
-  const isAuth = false;
+  const user = useAuth()
 
-  if (!isAuth) {
+  const {data: videos, isLoading, isError, error, isSuccess} = useQuery("History", () => axiosClient.get("/users/history").then(res => res.data.videos), {enabled: user})
+
+  if (!user) {
     return (
       <SignUpCard
         icon={<HistoryIcon />}
@@ -17,10 +27,21 @@ function History() {
     );
   }
 
+  if(isLoading) return <TrendingSkeleton />
+  if(isError) return <ErrorMessage error={error} />
+
   return (
     <Wrapper noPad>
       <h2>History</h2>
-      Watched Videos
+      {isSuccess && !videos.length && (
+        <p className="secondary">Videos that you have watched will show up here</p>
+      )}
+
+      {isSuccess ? videos.map(video => 
+        <Link key={video.id} to={`/watch/${video.id}`}>
+          <TrendingCard video={video} />
+        </Link>
+      ): null}
     </Wrapper>
   );
 }
