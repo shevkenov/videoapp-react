@@ -2,7 +2,6 @@
 import ErrorMessage from "components/ErrorMessage";
 import TrendingCard from "components/TrendingCard";
 import { useAuth } from "context/auth-context";
-import id from "date-fns/esm/locale/id/index.js";
 import React from "react";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
