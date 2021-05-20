@@ -1,19 +1,22 @@
+import { useAuth } from "context/auth-context";
 import React from "react";
 import { Link } from "react-router-dom";
 import { formatCreatedAt } from "utils/date";
 import DeleteCommentDropdown from './DeleteCommentDropdown';
 
 function CommentList({comments}) {
+  const user = useAuth();
+
   return (
     <>
       {
-        comments.length ? comments.map(comment => <Comment key={comment.id} comment={comment}/>) : null
+        comments.length ? comments.map(comment => <Comment key={comment.id} comment={comment} isCommentAuthor={user?.id === comment.userId}/>) : null
       }
     </>
   );
 }
 
-function Comment({comment}) {
+function Comment({comment, isCommentAuthor}) {
 
   return (
     <div className="comment">
@@ -33,7 +36,7 @@ function Comment({comment}) {
         </p>
         <p>{comment.text}</p>
       </div>
-      <DeleteCommentDropdown comment={comment}/>
+      {isCommentAuthor ? <DeleteCommentDropdown comment={comment}/> : null}
     </div>
   );
 }
