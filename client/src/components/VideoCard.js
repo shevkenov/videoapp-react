@@ -37,7 +37,7 @@ function VideoCard({ video, showAvatar, noUsername }) {
             <span>{formatCreatedAt(video.createdAt)}</span>
           </p>
         </div>
-        <DeleteVideoDropdown />
+        <DeleteVideoDropdown video={video}/>
       </div>
     </Wrapper>
   );
