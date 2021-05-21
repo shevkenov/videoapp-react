@@ -41,4 +41,4 @@ function Comment({comment, isCommentAuthor}) {
   );
 }
 
-export default CommentList;
+export default React.memo(CommentList);
