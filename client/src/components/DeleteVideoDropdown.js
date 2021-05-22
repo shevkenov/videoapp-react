@@ -11,8 +11,8 @@ function DeleteVideoDropdown({video}) {
   const user = useAuth();
   const isVideoAuthor = video.userId === user?.id;
 
-  const handleDeleteVideo = () => {
-    deleteVideo(video.id);
+  const handleDeleteVideo = async () => {
+    await deleteVideo(video.id);
     history.push("/feed/my_videos");
   }
   
